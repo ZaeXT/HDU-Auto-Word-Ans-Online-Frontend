@@ -3,6 +3,18 @@
     <h2>开始自动化任务</h2>
     <p class="subtitle">输入您的凭据以开始。</p>
 
+    <!-- === 新增：处理中消息框 === -->
+    <!-- 这个消息框只在 processingMessage 有内容，且没有最终结果时显示 -->
+    <div
+      v-if="taskStore.processingMessage && !taskStore.resultMessage && !taskStore.errorMessage"
+      class="message info"
+    >
+      <div class="icon">
+        <span class="processing-spinner"></span>
+      </div>
+      <span>{{ taskStore.processingMessage }}</span>
+    </div>
+
     <!-- 结果/错误信息展示 -->
     <div v-if="taskStore.errorMessage" class="message error">
       <div class="icon">
@@ -37,12 +49,12 @@
 
     <form @submit.prevent="handleSubmit">
       <div class="form-group">
-        <label for="username">学号 / Username</label>
+        <label for="username">用户名 / Username</label>
         <input
           id="username"
           v-model="form.username"
           type="text"
-          placeholder="请输入你的学号"
+          placeholder="请输入你的用户名"
           required
         />
       </div>
@@ -137,8 +149,12 @@ const handleSubmit = () => {
     exam_type: form.examType,
   }
   if (form.week) payload.week = form.week
-  if (form.correctCount !== null && form.correctCount >= 0)
-    payload.correct_count = form.correctCount
+  if (form.correctCount !== null && form.correctCount !== '') {
+    const count = parseInt(form.correctCount, 10)
+    if (isNaN(count) || count >= 0) {
+      payload.correct_count = count
+    }
+  }
   if (form.delay) payload.submit_delay_seconds = form.delay
 
   taskStore.runTask(payload)
@@ -319,6 +335,46 @@ button:hover:not(:disabled) {
   height: 18px;
   animation: spin 1s linear infinite;
   margin-right: 10px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.message {
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* === 新增：为 info/processing 消息框添加样式 === */
+.info {
+  background-color: var(--color-info-bg);
+  color: var(--color-info-text);
+  border: 1px solid var(--color-info-border);
+}
+.info .icon {
+  color: var(--color-info-text);
+}
+
+.processing-spinner {
+  border: 3px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top-color: var(--color-info-text);
+  width: 18px;
+  height: 18px;
+  animation: spin 1s linear infinite;
+}
+
+.spinner {
+  /* 按钮内的白色 spinner */
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  /* ... (其余不变) */
 }
 
 @keyframes spin {

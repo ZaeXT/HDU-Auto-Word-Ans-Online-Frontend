@@ -33,3 +33,12 @@ export const startTaskWithToken = (token, payload) => {
     },
   })
 }
+
+/**
+ * 检查后端健康状态
+ * @returns {Promise}
+ */
+export const checkHealth = () => {
+  // 我们给健康检查设置一个很短的超时时间，比如 5 秒
+  return apiClient.get('/api/v1/health', { timeout: 5000 })
+}
